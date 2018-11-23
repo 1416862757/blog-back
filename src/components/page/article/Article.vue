@@ -13,15 +13,13 @@
 
         <!-- 编辑弹出框 -->
         <el-dialog title="新增用户" :visible.sync="addVisible" width="35%">
-            <el-form :model="form" ref="form" :rules="rules" label-width="100px" label-position="left">
-                <el-form-item label="用户名:" prop="username" required>
-                    <el-input v-model="form.username"></el-input>
-                </el-form-item>
+            <el-form :model="form" ref="form" :rules="rules" label-width="80px" label-position="left">
+                <!--<el-form-item label="手机号:" prop="mobile"-->
+                <!--:rules="filter_rules({required:true,type:'mobile'})">-->
+                <!--<el-input v-model="form.mobile"></el-input>-->
+                <!--</el-form-item>-->
                 <el-form-item label="联系电话:" prop="mobile" required>
                     <el-input v-model="form.mobile"></el-input>
-                </el-form-item>
-                <el-form-item label="邮箱:" prop="email" required>
-                    <el-input v-model="form.email"></el-input>
                 </el-form-item>
 
             </el-form>
@@ -38,32 +36,50 @@
     export default {
         name: 'basetable',
         data() {
+            var checkPhone = (rule, value, callback) => {
+                const phoneReg = /^1[3|4|5|7|8][0-9]{9}$/
+                if (!value) {
+                    return callback(new Error('电话号码不能为空'))
+                }
+                setTimeout(() => {
+                    // Number.isInteger是es6验证数字是否为整数的方法,但是我实际用的时候输入的数字总是识别成字符串
+                    // 所以我就在前面加了一个+实现隐式转换
+
+                    if (!Number.isInteger(+value)) {
+                        callback(new Error('请输入数字值'))
+                    } else {
+                        if (phoneReg.test(value)) {
+                            callback()
+                        } else {
+                            callback(new Error('电话号码格式不正确'))
+                        }
+                    }
+                }, 100)
+            }
             return {
                 addVisible: true,
                 form: {
                     username: '',
                     password: '',
                     email: '',
-                    mobile: ""
+                    mobile:""
                 },
                 idx: -1,
-                rules: {}
+                rules:{
+                    mobile: [
+                        { validator: checkPhone, trigger: 'blur' }
+                    ]
+                }
             }
-        },
-        created:function () {
-            this.$data.rules =
-                this.initValidate([
-                    "mobile",
-                    "email"
-                ])
         },
         methods: {
             handleAdd() {
-                // this.$refs[ruleForm].validate()
                 this.addVisible = true;
             },
             // 保存编辑
             saveAdd() {
+                this.$refs[this.form].validate()
+
                 // this.$set(this.tableData, this.idx, this.form);
                 // this.addVisible = false;
                 // this.$message.success(`修改第 ${this.idx + 1} 行成功`);

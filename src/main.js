@@ -7,8 +7,10 @@ import 'element-ui/lib/theme-chalk/index.css';    // 默认主题
 // import '../static/css/theme-green/index.css';       // 浅绿色主题
 import '../static/css/icon.css';
 import "babel-polyfill";
+import Validate from '@/utils/validate';
 
 Vue.use(ElementUI, { size: 'small' });
+Vue.use(Validate);
 Vue.prototype.$axios = axios;
 
 //使用钩子函数对路由进行权限跳转

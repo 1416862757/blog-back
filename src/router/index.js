@@ -25,6 +25,11 @@ export default new Router({
                     meta: { title: '用户管理' }
                 },
                 {
+                    path: '/article',
+                    component: resolve => require(['../components/page/article/Article.vue'], resolve),
+                    meta: { title: '文章管理' }
+                },
+                {
                     path: '/icon',
                     component: resolve => require(['../components/page/Icon.vue'], resolve),
                     meta: { title: '自定义图标' }

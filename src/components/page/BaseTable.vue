@@ -74,7 +74,7 @@
             return {
                 url: './static/vuetable.json',
                 tableData: [],
-                cur_page: 1,
+                current: 1,
                 multipleSelection: [],
                 select_cate: '',
                 select_word: '',
@@ -127,7 +127,7 @@
                     this.url = '/ms/table/list';
                 };
                 this.$axios.post(this.url, {
-                    page: this.cur_page
+                    page: this.current
                 }).then((res) => {
                     this.tableData = res.data.list;
                 })

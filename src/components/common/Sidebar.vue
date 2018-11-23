@@ -55,6 +55,17 @@
                         ]
                     },
                     {
+                        icon: 'el-icon-lx-calendar',
+                        index: '3',
+                        title: '博文管理',
+                        subs: [
+                            {
+                                index: 'article',
+                                title: '文章管理'
+                            }
+                        ]
+                    },
+                    {
                         icon: 'el-icon-lx-cascades',
                         index: 'table',
                         title: '基础表格'
@@ -66,7 +77,7 @@
                     },
                     {
                         icon: 'el-icon-lx-calendar',
-                        index: '3',
+                        index: '4',
                         title: '表单相关',
                         subs: [
                             {
@@ -74,7 +85,7 @@
                                 title: '基本表单'
                             },
                             {
-                                index: '3-2',
+                                index: '4-2',
                                 title: '三级菜单',
                                 subs: [
                                     {

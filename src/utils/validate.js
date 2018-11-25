@@ -44,6 +44,17 @@ exports.install = function (Vue, options) {
                         }
                     ];
                     break;
+                case "password" :
+                    object.password = [
+                        {required: true, message: '密码不能为空', trigger: 'blur'},
+                        {type: 'string', min: 6, message: '密码不允许小于8位', trigger: 'blur'}
+                    ]
+                    break;
+                default :
+                    object.null = [
+                        {required: true, message: '不能为空', trigger: 'blur'}
+                    ]
+
             }
         }
         return object;

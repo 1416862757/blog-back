@@ -11,17 +11,29 @@
             </div>
         </div>
 
-        <!-- 编辑弹出框 -->
-        <el-dialog title="新增用户" :visible.sync="addVisible" width="35%">
-            <el-form :model="form" ref="form" :rules="rules" label-width="80px" label-position="left">
-                <!--<el-form-item label="手机号:" prop="mobile"-->
-                <!--:rules="filter_rules({required:true,type:'mobile'})">-->
-                <!--<el-input v-model="form.mobile"></el-input>-->
-                <!--</el-form-item>-->
-                <el-form-item label="联系电话:" prop="mobile" required>
-                    <el-input v-model="form.mobile"></el-input>
+        <!-- 新增弹出框 -->
+        <el-dialog title="新增文章" :visible.sync="addVisible" width="60%">
+            <el-form :model="article" ref="form" :rules="rules" label-width="100px" label-position="left">
+                <el-form-item label="标题:">
+                    <el-input v-model="article.title"></el-input>
                 </el-form-item>
-
+                <el-form-item label="标签">
+                    <el-select v-model="article.tagId" placeholder="请选择">
+                        <el-option
+                            v-for="(item) in tagList"
+                            :key="item.code"
+                            :label="item.name"
+                            :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="作者:">
+                    <el-input v-model="article.author"></el-input>
+                </el-form-item>
+                <el-form-item label="摘要:">
+                    <el-input v-model="article.summary"></el-input>
+                </el-form-item>
+                <quill-editor ref="form" v-model="article.content"></quill-editor>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="addVisible = false">取 消</el-button>
@@ -33,56 +45,56 @@
 </template>
 
 <script>
-    export default {
-        name: 'basetable',
-        data() {
-            var checkPhone = (rule, value, callback) => {
-                const phoneReg = /^1[3|4|5|7|8][0-9]{9}$/
-                if (!value) {
-                    return callback(new Error('电话号码不能为空'))
-                }
-                setTimeout(() => {
-                    // Number.isInteger是es6验证数字是否为整数的方法,但是我实际用的时候输入的数字总是识别成字符串
-                    // 所以我就在前面加了一个+实现隐式转换
+    import 'quill/dist/quill.core.css';
+    import 'quill/dist/quill.snow.css';
+    import 'quill/dist/quill.bubble.css';
+    import {quillEditor} from 'vue-quill-editor';
 
-                    if (!Number.isInteger(+value)) {
-                        callback(new Error('请输入数字值'))
-                    } else {
-                        if (phoneReg.test(value)) {
-                            callback()
-                        } else {
-                            callback(new Error('电话号码格式不正确'))
-                        }
-                    }
-                }, 100)
-            }
+    export default {
+        name: 'Article',
+        components: {
+            quillEditor
+        },
+        data() {
             return {
-                addVisible: true,
-                form: {
-                    username: '',
-                    password: '',
-                    email: '',
-                    mobile:""
+                addVisible: false,
+                tagList: [],
+                article: {
+                    title: "",
+                    tagId: "",
+                    author: "",
+                    summary: "",
+                    content: ""
                 },
-                idx: -1,
-                rules:{
-                    mobile: [
-                        { validator: checkPhone, trigger: 'blur' }
-                    ]
-                }
+                rules: {}
             }
         },
         methods: {
             handleAdd() {
+                const _this = this;
+                if (_this.tagList.length == 0) {
+                    _this.$axios.get("/api/tag")
+                        .then((res) => {
+                            const data = res.data;
+                            console.log(data)
+                            if (data.code == 200) {
+                                _this.tagList = data.data;
+                            } else {
+                                _this.$message.error('标签数据错误');
+                            }
+                        })
+                }
                 this.addVisible = true;
             },
             // 保存编辑
             saveAdd() {
-                this.$refs[this.form].validate()
+                const _this = this;
+                console.log(_this.article)
+                _this.$axios.post("/api/article", _this.article)
+                    .then((res) => {
 
-                // this.$set(this.tableData, this.idx, this.form);
-                // this.addVisible = false;
-                // this.$message.success(`修改第 ${this.idx + 1} 行成功`);
+                    })
+                this.addVisible = false;
             },
         }
     }

@@ -17,7 +17,7 @@
                 <el-form-item label="标题:">
                     <el-input v-model="article.title"></el-input>
                 </el-form-item>
-                <el-form-item label="标签">
+                <el-form-item label="标签:">
                     <el-select v-model="article.tagId" placeholder="请选择">
                         <el-option
                             v-for="(item) in tagList"
@@ -27,13 +27,37 @@
                         </el-option>
                     </el-select>
                 </el-form-item>
+
+
+
+                <el-form-item label="图片:">
+                    <div class="crop-demo">
+                        <img :src="cropImg" class="pre-img"><br/>
+                        <div class="crop-demo-btn">选择图片
+                            <input class="crop-input" type="file" name="image" accept="image/*" @change="setImage"/>
+                        </div>
+                    </div>
+                </el-form-item>
+                <el-dialog title="裁剪图片" :visible.sync="dialogVisible" width="30%">
+                    <vue-cropper ref='cropper' :src="imgSrc" :ready="cropImage" :zoom="cropImage" :cropmove="cropImage" style="width:100%;height:300px;"></vue-cropper>
+                    <span slot="footer" class="dialog-footer">
+                    <el-button @click="cancelCrop">取 消</el-button>
+                    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+                </span>
+                </el-dialog>
+
+
+
                 <el-form-item label="作者:">
                     <el-input v-model="article.author"></el-input>
                 </el-form-item>
                 <el-form-item label="摘要:">
                     <el-input v-model="article.summary"></el-input>
                 </el-form-item>
-                <quill-editor ref="form" v-model="article.content"></quill-editor>
+                <el-form-item label="内容:">
+                    <Editor id="tinymce" v-model="article.content" :init="editorInit"></Editor>
+                </el-form-item>
+
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="addVisible = false">取 消</el-button>
@@ -45,28 +69,41 @@
 </template>
 
 <script>
-    import 'quill/dist/quill.core.css';
-    import 'quill/dist/quill.snow.css';
-    import 'quill/dist/quill.bubble.css';
-    import {quillEditor} from 'vue-quill-editor';
-
+    import tinymce from 'tinymce/tinymce'
+    import 'tinymce/themes/modern/theme'
+    import Editor from '@tinymce/tinymce-vue'
+    import 'tinymce/plugins/image'
+    import 'tinymce/plugins/link'
+    import 'tinymce/plugins/code'
+    import 'tinymce/plugins/table'
+    import 'tinymce/plugins/lists'
+    import 'tinymce/plugins/contextmenu'
+    import 'tinymce/plugins/wordcount'
+    import 'tinymce/plugins/colorpicker'
+    import 'tinymce/plugins/textcolor'
+    import VueCropper  from 'vue-cropperjs';
     export default {
         name: 'Article',
-        components: {
-            quillEditor
-        },
+        components: {Editor},
         data() {
             return {
-                addVisible: false,
+                file: {},
+                addVisible: true,
                 tagList: [],
                 article: {
                     title: "",
                     tagId: "",
+                    pic: "",
                     author: "",
                     summary: "",
                     content: ""
                 },
-                rules: {}
+                rules: {},
+                editorInit: {},
+                defaultSrc: './static/img/img.jpg',
+                imgSrc: '',
+                cropImg: '',
+                dialogVisible: false,
             }
         },
         methods: {
@@ -88,14 +125,62 @@
             },
             // 保存编辑
             saveAdd() {
-                const _this = this;
-                console.log(_this.article)
-                _this.$axios.post("/api/article", _this.article)
-                    .then((res) => {
-
+                const _this = this
+                let formData = new FormData();
+                formData.append('file', _this.file);
+                let config = {
+                    headers: {'Content-Type': 'multipart/form-data'}
+                }
+                _this.$axios.post("/api/file/upload", formData, config)
+                    .then(res =>{
+                        console.log(res)
                     })
+
+
+                console.log(_this.article)
+                // _this.$axios.post("/api/article", _this.article)
+                //     .then((res) => {
+                //
+                //     })
                 this.addVisible = false;
             },
+            setImage(e){
+                this.file = e.target.files[0];
+                if (!this.file.type.includes('image/')) {
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    this.dialogVisible = true;
+                    this.imgSrc = event.target.result;
+                    this.$refs.cropper && this.$refs.cropper.replace(event.target.result);
+                };
+                reader.readAsDataURL(this.file);
+            },
+            cropImage () {
+                this.cropImg = this.$refs.cropper.getCroppedCanvas().toDataURL();
+            },
+            cancelCrop(){
+                this.dialogVisible = false;
+                this.cropImg = this.defaultSrc;
+            },
+        },
+        mounted(){
+            this.editorInit = {
+                language_url: '/static/tinymce/zh_CN.js',
+                language: 'zh_CN',
+                skin_url: '/static/tinymce/skins/lightgray',
+                height: 300,
+                plugins: 'link lists image code table colorpicker textcolor wordcount contextmenu',
+                toolbar:
+                    'bold italic underline strikethrough | fontsizeselect | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist | outdent indent blockquote | undo redo | link unlink image code | removeformat',
+                branding: false
+
+            };
+            tinymce.init({});
+        },
+        created(){
+            this.cropImg = this.defaultSrc;
         }
     }
 
@@ -127,5 +212,40 @@
 
     .red {
         color: #ff0000;
+    }
+
+    .pre-img{
+        width: 100px;
+        height: 100px;
+        background: #f8f8f8;
+        border: 1px solid #eee;
+        border-radius: 5px;
+    }
+    .crop-demo{
+        display: flex;
+        align-items: flex-end;
+    }
+    .crop-demo-btn{
+        position: relative;
+        width: 110px;
+        height: 40px;
+        line-height: 40px;
+        padding: 0 20px;
+        margin-left: 30px;
+        background-color: #409eff;
+        color: #fff;
+        font-size: 14px;
+        border-radius: 4px;
+        box-sizing: border-box;
+        text-align: center;
+    }
+    .crop-input{
+        position: absolute;
+        width: 100px;
+        height: 40px;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        cursor: pointer;
     }
 </style>

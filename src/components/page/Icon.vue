@@ -105,7 +105,7 @@
                     'servicefill',
                     'present',
                     'presentfill',
-                    'pic',
+                    'picUrl',
                     'picfill',
                     'rank',
                     'rankfill',

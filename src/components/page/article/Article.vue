@@ -88,12 +88,12 @@
         data() {
             return {
                 file: {},
-                addVisible: true,
+                addVisible: false,
                 tagList: [],
                 article: {
                     title: "",
                     tagId: "",
-                    pic: "",
+                    picUrl: "",
                     author: "",
                     summary: "",
                     content: ""
@@ -128,20 +128,26 @@
                 const _this = this
                 let formData = new FormData();
                 formData.append('file', _this.file);
+                formData.append('path', "1001");
                 let config = {
                     headers: {'Content-Type': 'multipart/form-data'}
                 }
                 _this.$axios.post("/api/file/upload", formData, config)
                     .then(res =>{
-                        console.log(res)
+                        if (res.data.code = 200){
+                            _this.$message.success('图片上传成功');
+                            _this.article.picUrl = res.data.data;
+                            console.log(_this.article)
+                            _this.$axios.post("/api/article", _this.article)
+                                .then((res) => {
+                                    if (res.data.code == 200) {
+                                        _this.$message.success('新增文章成功');
+                                    }
+                                })
+                        }
                     })
 
 
-                console.log(_this.article)
-                // _this.$axios.post("/api/article", _this.article)
-                //     .then((res) => {
-                //
-                //     })
                 this.addVisible = false;
             },
             setImage(e){

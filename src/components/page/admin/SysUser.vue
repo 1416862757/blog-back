@@ -119,7 +119,7 @@
         methods: {
             // 分页导航
             handleCurrentChange(val) {
-                this.cur_page = val;
+                this.current = val;
                 this.getData();
             },
             getData() {

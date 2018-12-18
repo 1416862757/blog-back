@@ -27,7 +27,7 @@
                         <el-button type="text" icon="el-icon-edit" @click="handleAdd(scope.$index, scope.row)">编辑
                         </el-button>
                         <el-button type="text" icon="el-icon-delete" class="red"
-                        @click="handleDelete(scope.$index, scope.row)">删除
+                                   @click="handleDelete(scope.$index, scope.row)">删除
                         </el-button>
                     </template>
                 </el-table-column>
@@ -191,16 +191,16 @@
                 this.multipleSelection = [];
             },
             // 确定删除
-            deleteRow(){
+            deleteRow() {
                 let _this = this;
                 let url = "/api/article"
-                if (_this.del_list.length > 0){
-                    url = "/api/article?" + _this.qs.stringify({ids: _this.del_list}, { arrayFormat: 'repeat' })
+                if (_this.del_list.length > 0) {
+                    url = "/api/article?" + _this.qs.stringify({ids: _this.del_list}, {arrayFormat: 'repeat'})
                 }
                 _this.$axios.delete(url).then(
                     res => {
                         console.log(res)
-                        if (res.data.code == 200){
+                        if (res.data.code == 200) {
                             this.tableData.splice(this.idx, 1);
                             this.$message.success('删除成功');
                         } else {
@@ -212,10 +212,14 @@
             },
             // 获取文章列表
             getData() {
-                this.$axios.post("/api/article/list", {params: {current: 1, size: 5}})
-                    .then((res) => {
-                        this.tableData = res.data.data.records;
-                    })
+                this.$axios.post("/api/article/list",
+                    {
+                        current: 1,
+                        size: 5,
+                        descs: ["create_date"]
+                    }).then((res) => {
+                    this.tableData = res.data.data.records;
+                })
             },
             // 分页导航
             handleCurrentChange(val) {
@@ -296,7 +300,7 @@
                         _this.$axios.put("/api/article", _this.article).then(
                             res => {
                                 if (res.data.code == 200) {
-                                    _this.$message.success(`修改第 ${_this.idx+1} 行成功`);
+                                    _this.$message.success(`修改第 ${_this.idx + 1} 行成功`);
                                 }
                             }
                         )
@@ -315,7 +319,7 @@
                                     _this.$axios.put("/api/article", _this.article).then(
                                         (res) => {
                                             if (res.data.code == 200) {
-                                                _this.$message.success(`修改第 ${_this.idx+1} 行成功`);
+                                                _this.$message.success(`修改第 ${_this.idx + 1} 行成功`);
                                             }
                                         })
                                 }
